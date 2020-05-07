@@ -1,0 +1,118 @@
+---
+title: "Lab 01"
+author: "Jiapeng Guo"
+date: "May 6, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+data(mtcars)
+```
+
+### Arithmetic
+
+In the first code block, use R to perform the following arithmetic operations. 
+
+- $13+5$
+- $\frac{7}{3}$
+- $14^3$
+
+```{r}
+# Note that you can run an individual code chunk by clicking on the green arrow over here -->
+# Instead of knitting the entire document, you can work on little bits of code first!
+
+# Write your code below
+#(a)
+13 + 5
+#(b)
+7 / 3
+#(c)
+14^3
+
+```
+
+***
+
+### Variable Assignments
+
+In the second code block, use R, to complete the following variable assignments.
+
+- Assign $6$ to $x$. Assign $-5$ to $y$. Evaluate the sum of $x$ and $y$.
+- You can assign *from* variables just as easily as you can assign *to* variables. Reassign $x$ so that it is equal to $y$. Reevaluate the sum of $x$ and $y$.
+- Reassign $y$ so that it has the value of $8$. In the previous part, we reassigned $x$ so that it has the same value as $y$. Does changing the value of $y$ in this part affect the value of $x$? 
+
+```{r}
+# Write your code below
+# (a)
+x = 6
+y = 5
+x + y
+#(b)
+x = y
+x + y
+#(c)
+y = 8
+
+# it does not affect the value of x
+
+```
+
+***
+
+### Data Types
+
+In the third code block, use R to explore different data types.
+
+- Create three variables `myName`, `myPets`, and `myState`. Assign them your name, the number of pets your family has, and whether you are from Michigan (`TRUE` if you are from Michigan, `FALSE` otherwise). Note, you will need to wrap your name in double quotes.
+- Check the type of each variable using the `class()` function
+
+```{r}
+# Write your code below
+#(a)
+myName = 'Jiapeng'
+myPets = 0
+myState = FALSE
+
+#(b)
+class(myName)
+class(myPets)
+class(myState)
+```
+
+***
+
+### Basic Data Exploration
+
+In the fourth code block, use R to explore the built-in data set 'mtcars'. This data contains aspects of automobile design and performance for a sample of cars from 1974.
+
+- Using the `summary()` function, create numerical summaries for the entire data set.
+- Use the `View()` function to look at the data. Calling `View()` should be done in the console below, not in the R Markdown file. No work is required for this task.
+- Are more cars automatic (`am = 0`) or manual (`am = 1`)? Get the answer by using the `table()` function. Note: to reference a specific variable, use the format `data$variable`.
+- What is the standard deviation of the variable fuel efficiency (`mpg`)? Use the function `sd()`.
+- What is the highest horsepower to weight ratio (i.e. `hp:wt`)? Note: generate a new variable that represents this ratio, then use the `max()` function to find the maximum ratio.
+- Use the `plot()` function to create a scatterplot of fuel efficiency (`mpg`) versus weight (`wt`). Use the inputs `xlab` and `ylab` to give the plot proper $x$ and $y$-labels.
+
+
+```{r}
+# The data set 'mtcars' has already been loaded into the workspace at the top of the file
+
+# Write your code below
+#(a)
+summary(mtcars)
+
+#(b)
+table(mtcars$am)
+# There are more cars that are automatic than cars that are manual
+
+#(c)
+sd(mtcars$mpg)
+
+#(d)
+mtcars$ratio = mtcars$hp / mtcars$wt
+max(mtcars$ratio)
+
+#(e)
+plot(mtcars$mpg, mtcars$wt, xlab = 'fuel efficiency', ylab = 'weight')
+```
+
