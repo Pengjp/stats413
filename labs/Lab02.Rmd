@@ -1,0 +1,196 @@
+---
+title: "Lab 02"
+author: "insert your name here"
+date: "May 11, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Part 1: Loading Data into R
+
+For this portion of the lab, you will load data into R three different ways. 
+
+### Method 1 - Built-In Data
+
+Load the `mtcars` data set. This data set is already included in R.  
+```{r}
+# Write your code below
+data(mtcars)
+```
+
+Examine, with scatterplots, the relationship between mileage (`mpg`) and:  
+
+- displacement (`disp`)
+- horsepower (`hp`)
+- weight (`wt`)  
+
+Note: you may create individual scatterplots for each variable against mileage or you may create one scatterplot matrix using the `pairs()` function. 
+
+```{r}
+# Write your code below
+pairs(~ mpg + disp + hp + wt, data = mtcars)
+```
+
+Which variable do you think would be the best linear predictor of a car's mileage? Why?  
+  
+Write your answer here.  
+
+I think weight is the best linear predictor of a car's mileage since this variable shows a strong linear relation with mpg. Other varialbes show a bit non-linear attributes.
+
+### Method 2 - Data from an R Package
+
+Load the `brocolli` data set into R from the 'faraway' package. You will most likely have to install this package onto your machine first. **Do not install the 'faraway' package in your R Markdown file.** This should be done in the console (the command only needs to be run once).
+```{r}
+# Write your code below
+library(faraway)
+data(broccoli)
+```
+
+Use the `str()` function to determine how many groups/levels there are for the variable grower.
+```{r}
+# Write your code below
+str(broccoli)
+```
+How many groups/levels are there for the variable grower?  
+  
+Write your answer here.  
+There are 3 levels for the variable grower.
+  
+Create one side-by-side boxplot for the variable weight comparing the various growers.
+```{r}
+# Write your code below
+boxplot(broccoli$wt ~ broccoli$grower)
+```
+
+
+### Method 3 - Data from an Outside Source
+
+Download the "Pokemon.csv" data set from Canvas and load it into R.
+```{r}
+# Write your code below
+df=read.csv('pokemon.csv',header = TRUE)
+```
+  
+Use the `head()` function to display the first 6 rows of data.
+```{r}
+# Write your code below
+head(df)
+```
+
+Using the `table()` function, determine how many of the 800 Pokemon are listed as "Water" for the Type.1 variable. 
+```{r}
+# Write your code below
+table(df$Type.1)
+```
+How many Pokemon are listed as "Water"?  
+  
+Write your answer here.  
+There are 122 Pokemon are listed as "Water".
+
+***
+
+
+## Part 2: Calculating the Estimated Regression Coefficients
+
+For this portion of the lab, you will calculate estimated regression coefficients three different ways. For all three methods, we will use the `mtcars` data set. You can find more information about the data set by running `help(mtcars)` in your console.
+
+### Method 1 - Simple Linear Reression (Manually)
+
+Find the estimated coefficients for a simple linear regression model without using the `lm()` function. 
+
+Calculate $\hat{\beta}_1$ and $\hat{\beta}_0$ for the model predicting mileage (`mpg`) based on weight (`wt`). Do not use R's modeling capabilities (i.e. the `lm()` function). Rather, use R as a calculator to help with the computations. Hint: Check out the Lab02 Example.
+```{r}
+# Write your code below
+y=mtcars$mpg
+x=mtcars$wt
+
+ssxx <- sum((x - mean(x))^2)
+ssxy <- sum((x - mean(x)) * (y - mean(y)))
+
+beta.hat.1 <- ssxy / ssxx
+beta.hat.0 <- mean(y) - (beta.hat.1 * mean(x))
+
+beta.hat.0; beta.hat.1
+```
+
+Interpret your results for $\hat{\beta}_1$ within the context of the problem. Be careful with units.  
+  
+Write your answer here.  
+
+For a 1000 lbs weight increase, we would estimate an average decrease of 5.344472 miles/gallon in mpg.
+  
+Create a plot of mileage and weight. Then, using the abline() function, add your regression line to the plot. Be sure to give your plot proper labels for the axes.
+```{r}
+# Write your code below
+plot(x, y, xlab = 'weight', ylab = 'mpg')
+abline(a = beta.hat.0, b = beta.hat.1)
+```
+
+
+### Method 2 - Multiple Linear Regression (Matrices)
+
+Find the estimated coefficients for a multiple linear regression model using matrices. You will attempt to predict the mileage of a car (`mpg`) based upon several predictors
+
+Generate your design matrix, $X$. The design matrix is a column of 1's (for the intercept) followed by a column for each predictor. Use the following predictors: 
+	
+- displacement (`disp`)
+- horsepower (`hp`)
+- weight (`wt`)
+
+Note: While you may generate this manually if you want, an easier way to do this is using the `model.matrix()` function. Check out the Lab02 Example.
+```{r}
+# Write your code below
+X <- model.matrix( ~ disp + hp + wt, data = mtcars)
+Y = mtcars$mpg
+```
+
+Calculate $\hat{\beta}$. Recall that in class we derived $\hat{\beta}=(X^TX)^{-1}X^TY$.
+```{r}
+# Write your code below
+beta.hat <- solve(t(X) %*% X) %*% (t(X) %*% Y)
+beta.hat
+
+```
+
+(Optional) Challenge: estimate $\sigma^2$ by calculating the fitted values and then the residuals.
+```{r}
+# Write your code below
+
+```
+
+### Method 3 - Confirmation of the Estimated Coefficients
+
+Confirm the estimated coefficients from Method 1 and Method 2 using the `lm()` function.  
+  
+Using the `lm()` function, create the simple linear regression model predicting mileage (`mpg`) based on weight (`wt`). Do the results match the values calculated using Method 1? 
+```{r}
+# Write your code below
+lm(mpg~wt, data=mtcars)
+```
+The results match the values calculated using Method 1.
+
+
+Using the `lm()` function, create the multiple linear regression model predicting mileage (`mpg`) based on displacement (`disp`), horsepower (`hp`), and weight (`wt`). Do the results match the values calculated using Method 2?
+```{r}
+# Write your code below
+lm(mpg ~ disp+hp+wt, data=mtcars)
+```
+The results match the values calculated using Method 2.
+
+
+Store the multiple linear regression model and pass it through the `summary()` function. Which of the variables are statistically significant linear predictors at a 5% significance level?
+```{r}
+# Write your code below
+mlr=lm(mpg ~ disp+hp+wt, data=mtcars)
+summary(mlr)
+```
+Which predictor variables are statistically significant?  
+
+Write your answer here.
+hp and wt are statistically significant
+
+
+
