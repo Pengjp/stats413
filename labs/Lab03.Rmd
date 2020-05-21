@@ -1,0 +1,218 @@
+---
+title: "Lab 03"
+author: "insert your name here"
+date: "May 18, 2020"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(emmeans)
+data(swiss)
+data(salary, package = "alr4")
+```
+
+**If you get an error when running the code, make sure that you have both the 'alr4' and 'emmeans' packages installed. You can install them by running the following code in base R (not RStudio or RMarkdown).**
+
+> install.packages('alr4')  
+> install.packages('emmeans')
+
+### Swiss Fertility
+
+Use the `swiss` data set to answer the following questions. Further information on the data set can be found [here](https://www.rdocumentation.org/packages/datasets/versions/3.6.2/topics/swiss).
+
+**Note: Due to the distribution of the variable 'Catholic' (most provinces are either mostly Catholic or mostly not), I have converted the variable to be binary. The following code has been excluded from the HTML output, but be sure to run it before you begin your analysis.**
+```{r, include = FALSE}
+hist(swiss$Catholic)
+
+swiss$Catholic <- as.factor(ifelse(swiss$Catholic > 70, "Yes", "No"))
+str(swiss)
+```
+
+Feel free to explore the data set on your own, outside of this R Markdown file. Create scatterplots, numerical summaries, etc. to get a better feel for the data set you're about to explore!  
+
+***
+
+Create a linear regression model predicting `Fertility` based on all remaining variables. Remember, that you can simply add a '.' to include all variables in the `lm()` function. Pass your model through the `summary()` function and answer the questions below.
+```{r}
+# Write your code here
+model=lm(Fertility ~.,data=swiss)
+summary(model)
+#Double check: Did you run the first block of code? Be sure to run lines 21 - 26 before completing the lab.
+```
+**Is the overall model statistically significant (at a 5% significance level)? What test statistic helps us make this decision?**  
+  
+Yes. F-statistic and p-vaule help us to make this decision 
+  
+**Which individual predictors are statistically significant (at a 5% significance level)?**  
+  
+Agriculture, Education, Catholic, Infant.Mortality
+
+***
+
+Calculate the mean of the residuals.
+```{r}
+# Write your code here
+mean(resid(model))
+```
+
+***
+
+Calculate the correlation (using `cor()`) between the fitted values and the observed values for the response (`Fertility`). Square this result. 
+```{r}
+# Write your code here
+cor(model$fitted.values, swiss$Fertility)^2
+```
+**Where else did this value appear/what does this value represent? Hint: Look back at your regression summary.**  
+  
+We can find at here: Multiple R-squared. This value represents the percent of variation in Fertility that is explained by the linear regression model involving Agriculture, Examination, Education, Catholic and Infant.Mortality. 
+  
+  
+***
+
+Using the `vcov()` function, create the variance-covariance matrix.
+```{r}
+# Write your code here
+vcov(model)
+```
+**What is the covariance between Examination and Education?**  
+  
+-0.018959491  
+**What is the variance for Infant.Mortality?**  
+  
+0.1340224607
+***
+
+Pass your regression model through the `anova()` function. 
+```{r}
+# Write your code here
+anova(model)
+```
+**What is the value for the sum of squares of the residuals?**  
+  
+1919.50 
+  
+**What is the value for the sum of squares of the regression model?**  
+  
+894.84+ 2210.38+ 891.81+907.70+353.72=5258.45
+
+*** 
+
+Using the `predict.lm()` function, create a 90% *prediction* interval for an individual Swiss province with the following data:
+
+- Agriculture = 50
+- Examination = 20
+- Education = 10
+- Catholic = "Yes"
+- Infant.Mortality = 20
+
+```{r}
+# Write your code here
+x.new <- data.frame(Agriculture = 50, Examination = 20,Education = 10,Catholic = "Yes",  Infant.Mortality = 20)
+predict.lm(model, x.new,interval = "prediction", level = 0.9)
+```
+
+
+***
+
+### Similarity to $t$-tests
+
+One may wish to test if there is a statistically significant difference between provinces labeled as "Catholic" and those that are not. We can see visually that there appears to be a difference.
+```{r, echo = FALSE}
+boxplot(swiss$Fertility ~ swiss$Catholic,
+        ylab = "Fertility (Ig)",
+        xlab = "",
+        names = c("Non-Catholic", "Catholic"))
+```
+
+We could run a $t$-test to determine if there is a **statistically significant** difference. We could perform this test using the following code. Notice that we assume equal variances between the two groups (similar to the constant variance assumption of linear regression).
+```{r}
+t.test(swiss$Fertility ~ swiss$Catholic,
+       alternative = "two.sided",
+       paired = FALSE,
+       var.equal = TRUE)
+```
+
+
+Create a linear regression model predicting `Fertility` using only the variable `Catholic`. Pass your model through the `summary()` function.
+```{r}
+# Write your code here
+model=lm(Fertility~Catholic, data=swiss)
+summary(model)
+```
+**What is the (magnitude of the) test statistic and corresponding p-value for the variable Catholic? Do these values match the values from the $t$-test above?**  
+test statistic = 5.097, p-value = 6.65e-06. Yes, they do match the values from the t-test above.
+  
+***
+
+#### Multiple regression not only allows us to run basic statistical tests (such as a $t$-test), but it also lets us include additional variables of interest (or variables for control)!
+  
+  
+***
+  
+  
+### Salaries of Professors
+
+Use the `salary` data set to answer the following questions. Further information on the data set can be found [here](https://www.rdocumentation.org/packages/alr4/versions/1.0.5/topics/salary).   
+  
+Let's take a look at the data frame!
+```{r}
+str(salary)
+table(salary$rank)
+```
+**How many levels/groups are there for the factors 'rank'? What are the names of the different groups? Hint: you can explore the data set to find out or check out the documentation provided at the start of this section.**  
+  
+3 levels for the factors 'rank'. Asst, Assoc, and Prof
+***
+  
+Create a linear regression model using `rank` to predict `salary`.    
+Use the `summary()` function to analyze the results.
+```{r}
+# Write your code here
+model=lm(salary~rank, data=salary)
+summary(model)
+```
+**What is the reference category?**  
+  
+Asst
+  
+**(Using a 5% significance level) Is there a statistically significant difference in average salary between faculty with the rank of 'Asst' and faculty with the rank of 'Assoc'? How about between faculty with the rank of 'Asst' and faculty with the rank of 'Prof'?**  
+  
+Answers for both questions are yes. 
+
+***
+  
+We cannot test if there is a statistically significant difference in average salary between faculty with the rank of 'Assoc' and faculty with the rank of 'Prof' from this output. The tests only compare to the reference category.  
+  
+Use a combination of the `pairs()` function and the `emmeans()` function to test for differences between all three groups. 
+```{r}
+# Write your code here
+pairs(emmeans(model, ~ rank), adjust = "none")
+```
+**Is there a statistically significant difference in average salary between faculty with the rank of 'Assoc' and faculty with the rank of 'Prof' (at a 5% significance level)?**  
+  
+Yes.
+
+  
+***
+
+We can create scatterplots with color to visualize potential differences between groups. 
+```{r}
+plot(salary ~ year, data = salary,
+     col = c("blue", "orange", "dark gray")[as.numeric(rank)], 
+     pch = c(20, 17, 18)[as.numeric(rank)], 
+     xlab = "Years in Current Rank",
+     ylab = "Salary ($)",
+     cex = 1.4)
+
+legend(x = 20, y = 25000, 
+       legend = levels(salary$rank), 
+       col = c("blue", "orange", "dark gray"),
+       pch = c(20, 17, 18),
+       cex = 1.4)
+```
+
+From the plot, do you think the three groups should have different intercepts? Different slopes? We'll find out next lab! (No answer needed here.)
+
+
